@@ -1,0 +1,71 @@
+[project]
+name = "hello-sql-alchemy"
+version = "0.1.0"
+description = "A small project to demonstrate SQLAlchemy usage"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic>=2.11.7",
+    "sqlalchemy>=2.0.41",
+]
+
+[dependency-groups]
+dev = [
+    "deptry>=0.23.0",
+    "pip-audit>=2.9.0",
+    "poethepoet>=0.36.0",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "ruff>=0.12.4",
+    "ty>=0.0.1a15",
+]
+
+[tool.uv]
+package = true
+
+[project.scripts]
+hello-sql-alchemy = "hello_sql_alchemy:main"
+
+[tool.ruff.lint]
+select = ["ALL"]
+# and then manually ignore annoying ones:
+ignore = [
+    #     "ANN401", # Any should be allowed
+    "D211",
+    "D213",
+    "COM812",
+    "D203",
+    "ISC001",
+]
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    # at least this three should be fine in tests:
+    "S101",   # asserts allowed in tests...
+    "ANN401", # Any should be allowed
+    "BLE001", # Catch blind exception in tests should be allowed
+]
+
+[tool.ruff.lint.isort]
+# so it knows to group first-party stuff last
+known-first-party = ["hello_sql_alchemy"]
+
+[tool.coverage.paths]
+source = ["hello_sql_alchemy"]
+
+[tool.coverage.run]
+branch = true
+omit = ["tests/*"]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
+
+[tool.poe.tasks]
+format = "uv run ruff format"
+lint = "uv run ruff check --fix"
+check-types = "uv run ty check ."
+check-deps = "uv run deptry ."
+audit = "uv run pip-audit"
+test = "uv run pytest -s --cov --cov-report=term-missing --cov-report=html"
+release = ["lint", "check-types", "check-deps", "audit", "test"]
