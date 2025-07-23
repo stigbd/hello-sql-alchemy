@@ -1,6 +1,6 @@
 # hello-sql-alchemy
 
-This is a simple proejct to demonstrate how to use [SQLAlchemy](https://www.sqlalchemy.org/) and [Alembic](https://alembic.sqlalchemy.org/) with [Pydantic](https://docs.pydantic.dev/) in Python. It uses [SQLite](https://www.sqlite.org/) as the database and provides a basic example of how to create a table, insert data, and query it.
+This is a simple project to demonstrate how to use [SQLAlchemy](https://www.sqlalchemy.org/) and [Alembic](https://alembic.sqlalchemy.org/) with [Pydantic](https://docs.pydantic.dev/) in Python. It uses [SQLite](https://www.sqlite.org/) as the database and provides a basic example of how to create a table, insert data, and query it.
 
 
 To run it, you need to install the dependencies. Using [uv](https://docs.astral.sh/uv/), you can do this easily:
