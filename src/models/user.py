@@ -16,19 +16,18 @@ class User(BaseModel):
     def save(self) -> None:
         """Simulate saving the user to a database."""
         # lazy import to avoid circular dependencies:
-        from hello_sql_alchemy.repository import Repository  # noqa: PLC0415
+        from src.repository import Repository  # noqa: PLC0415
 
         repository = Repository()
         repository.create_engine()
         # Create the repository and initialize the database connection.
         repository.add_user(self)
 
-
     @classmethod
     def list(cls) -> list["User"]:
         """List all users."""
         # lazy import to avoid circular dependencies:
-        from hello_sql_alchemy.repository import Repository  # noqa: PLC0415
+        from src.repository import Repository  # noqa: PLC0415
 
         repository = Repository()
         repository.create_engine()
@@ -39,7 +38,7 @@ class User(BaseModel):
     def get(cls, user_id: UUID) -> Union[None, "User"]:
         """Get a user by ID."""
         # lazy import to avoid circular dependencies:
-        from hello_sql_alchemy.repository import Repository  # noqa: PLC0415
+        from src.repository import Repository  # noqa: PLC0415
 
         repository = Repository()
         repository.create_engine()

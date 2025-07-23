@@ -22,5 +22,5 @@ def main() -> None:
     user = User.get(jane.id)
     if user:
         print(f"Retrieved User: {user.name} with ID {user.id}")  # noqa: T201
-    else: # pragma: no cover
+    else:  # pragma: no cover
         print("User not found.")  # noqa: T201

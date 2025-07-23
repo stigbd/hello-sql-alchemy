@@ -1,11 +1,14 @@
 """Repository module for managing user accounts using SQLAlchemy."""
 
+import os
 from uuid import UUID
 
 from sqlalchemy import Engine, String, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
-from hello_sql_alchemy.models import User
+from src.models import User
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///test.db")
 
 
 class Base(DeclarativeBase):
@@ -20,6 +23,7 @@ class UserDAO(Base):
     name: Mapped[str] = mapped_column(String(30))
     fullname: Mapped[str | None]
 
+
 class Repository:
     """Repository for managing user accounts."""
 
@@ -28,8 +32,7 @@ class Repository:
     @classmethod
     def create_engine(cls) -> None:
         """Initialize the repository with a SQLAlchemy session."""
-        cls.engine = create_engine("sqlite:///example.db", echo=True)
-        Base.metadata.create_all(cls.engine)  # Example connection string
+        cls.engine = create_engine(DATABASE_URL, echo=True)
 
     @classmethod
     def add_user(cls, user: User) -> None:

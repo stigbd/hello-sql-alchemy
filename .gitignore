@@ -9,5 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
+# Environment
+.env
+
 # ignoren the sqllite db file:
-example.db
+test.db

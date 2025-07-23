@@ -2,7 +2,7 @@
 
 import pytest
 
-from hello_sql_alchemy import main
+from src import main
 
 
 def test_main() -> None:

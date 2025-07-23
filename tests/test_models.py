@@ -1,7 +1,8 @@
-"""Test models for hello_sql_alchemy."""
+"""Test models."""
+
 from uuid import uuid4
 
-from hello_sql_alchemy.models.user import User
+from src.models.user import User
 
 
 def test_user() -> None:
@@ -11,6 +12,7 @@ def test_user() -> None:
     assert user.name == "testuser"
     assert user.fullname == "Test User"
     assert user.id is not None  # Ensure ID is generated
+
 
 def test_user_save() -> None:
     """Test saving a user."""
@@ -23,6 +25,7 @@ def test_user_save() -> None:
     assert retrieved_user.name == "testuser"
     assert retrieved_user.fullname == "Test User"
 
+
 def test_user_list() -> None:
     """Test listing users."""
     expected_number_of_users = 2
@@ -34,7 +37,9 @@ def test_user_list() -> None:
     user2.save()
 
     users = User.list()
-    assert len(users) >= expected_number_of_users # Ensure at least two users are listed
+    assert (
+        len(users) >= expected_number_of_users
+    )  # Ensure at least two users are listed
     assert any(u.name == "user1" for u in users)
     assert any(u.name == "user2" for u in users)
 
