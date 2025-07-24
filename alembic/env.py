@@ -20,7 +20,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from src.repository import Base
+from app.repository import Base
 
 target_metadata = Base.metadata
 
@@ -29,9 +29,15 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-# Database URL from environment variable:
-database_url = os.getenv("DATABASE_URL", "sqlite:///test.db")
-config.set_main_option("sqlalchemy.url", database_url)
+# Buld database URL from environment variables:
+DATABASE_HOST = os.getenv("DATABASE_HOST")
+DATABASE_PORT = int(os.getenv("DATABASE_PORT", "5432"))
+DATABASE_NAME = os.getenv("DATABASE_NAME")
+DATABASE_USER = os.getenv("DATABASE_USER")
+DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
+
+DATABASE_URL = f"postgresql+psycopg://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 
 def run_migrations_offline() -> None:

@@ -4,7 +4,13 @@ version = "0.1.0"
 description = "A small project to demonstrate SQLAlchemy usage"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["alembic>=1.16.4", "pydantic>=2.11.7", "sqlalchemy>=2.0.41"]
+dependencies = [
+    "alembic>=1.16.4",
+    "fastapi[standard]>=0.116.1",
+    "psycopg[binary]>=3.2.9",
+    "pydantic>=2.11.7",
+    "sqlalchemy>=2.0.41",
+]
 
 [dependency-groups]
 dev = [
@@ -13,6 +19,8 @@ dev = [
     "poethepoet>=0.36.0",
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
+    "pytest-docker>=3.2.3",
+    "pytest-mock>=3.14.1",
     "ruff>=0.12.4",
     "ty>=0.0.1a15",
 ]
@@ -22,10 +30,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-include = ["src"]
+include = ["app"]
 
 [project.scripts]
-hello-sql-alchemy = "src:main"
+hello-sql-alchemy = "app:api"
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -65,6 +73,8 @@ omit = ["tests/*"]
 fail_under = 100
 show_missing = true
 
+[tool.deptry.per_rule_ignores]
+DEP002 = ["psycopg"]
 
 [tool.poe.tasks]
 format = "uv run ruff format"
@@ -72,8 +82,16 @@ lint = "uv run ruff check --fix"
 check-types = "uv run ty check ."
 check-deps = "uv run deptry ."
 audit = "uv run pip-audit"
-test = "uv run pytest -s --cov --cov-report=term-missing --cov-report=html"
-release = ["lint", "check-types", "check-deps", "audit", "test"]
+test-fast = "uv run pytest tests/fast -s --cov --cov-report=term-missing --cov-report=html"
+test-slow = "uv run pytest tests/slow"
+release = [
+    "lint",
+    "check-types",
+    "check-deps",
+    "audit",
+    "test-fast",
+    "test-slow",
+]
 
 
 [tool.alembic]
