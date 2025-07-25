@@ -1,12 +1,17 @@
 """Repository module for managing user accounts using SQLAlchemy."""
 
+import logging
 import os
 from uuid import UUID
 
 from sqlalchemy import Engine, String, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
+from alembic.command import check
+from alembic.config import Config
 from alembic.migration import MigrationContext
+from alembic.script import ScriptDirectory
+from alembic.util.exc import CommandError
 from app.models import User
 
 DATABASE_HOST = os.getenv("DATABASE_HOST")
@@ -15,6 +20,8 @@ DATABASE_NAME = os.getenv("DATABASE_NAME")
 DATABASE_USER = os.getenv("DATABASE_USER")
 DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
 DATABASE_URL = f"postgresql+psycopg://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
+
+logger = logging.getLogger(__name__)
 
 
 class Base(DeclarativeBase):
@@ -49,6 +56,29 @@ class Repository:
         current_rev = context.get_current_revision()
         conn.close()
         return current_rev
+
+    @classmethod
+    def check(cls) -> bool:  # pragma: no cover
+        """Check if the database schema is up to date."""
+        # Get the alembic configuration:
+        alembic_config_file = os.getenv("ALEMBIC_CONFIG", "alembic.ini")
+        alembic_config = Config(alembic_config_file)
+        try:
+            check(alembic_config)
+        except CommandError:
+            logger.exception("Autogenerate diffs detected: Please run migrations.")
+            return False
+
+        return True
+
+    @classmethod
+    def get_current_head(cls) -> str | None:  # pragma: no cover
+        """Get the current head of the database schema."""
+        alembic_config_file = os.getenv("ALEMBIC_CONFIG", "alembic.ini")
+        config = Config(alembic_config_file)
+        script = ScriptDirectory.from_config(config)
+
+        return script.get_current_head()
 
     @classmethod
     def add_user(cls, user: User) -> None:

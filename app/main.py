@@ -17,10 +17,23 @@ def health_check() -> dict:
     It will check the database schema version and return a simple status message.
     """
     Repository.create_engine()  # Initialize the repository engine
+    up_to_date = Repository.check()
     current_revision = Repository.get_current_revision()
-    if current_revision is None:
-        raise HTTPException(status_code=500, detail="Database schema not initialized")
-    return {"status": "ok", "currentDatabaseSchemaRevision": current_revision}
+    current_head = Repository.get_current_head()
+    if not up_to_date:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Database schema not up to date."
+                f" Current database schema revision is '{current_revision}'"
+                f" and current head is '{current_head}'"
+            ),
+        )
+    return {
+        "status": "ok",
+        "currentDatabaseSchemaRevision": current_revision,
+        "currentHead": current_head,
+    }
 
 
 @api.get("/users")

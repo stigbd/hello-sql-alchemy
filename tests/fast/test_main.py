@@ -20,9 +20,14 @@ def client() -> TestClient:
 def test_health_check(client: TestClient, mocker: MockFixture) -> None:
     """Health check endpoint should return status OK."""
     current_database_schema_revision = "revision_1"
+    current_head = "revision_1"
     mocker.patch(
         "app.repository.Repository.get_current_revision",
         return_value=current_database_schema_revision,
+    )
+    mocker.patch("app.repository.Repository.check", return_value=True)
+    mocker.patch(
+        "app.repository.Repository.get_current_head", return_value=current_head
     )
 
     response = client.get("/health")
@@ -32,18 +37,33 @@ def test_health_check(client: TestClient, mocker: MockFixture) -> None:
     assert response.json() == {
         "status": "ok",
         "currentDatabaseSchemaRevision": current_database_schema_revision,
+        "currentHead": current_head,
     }, "Health check response should be 'ok'"
 
 
 def test_health_check_no_revision(client: TestClient, mocker: MockFixture) -> None:
     """Health check endpoint should return 500 if no revision is found."""
-    mocker.patch("app.repository.Repository.get_current_revision", return_value=None)
+    current_database_schema_revision = None
+    current_head = "revision_1"
+
+    mocker.patch(
+        "app.repository.Repository.get_current_revision",
+        return_value=current_database_schema_revision,
+    )
+    mocker.patch("app.repository.Repository.check", return_value=False)
+    mocker.patch(
+        "app.repository.Repository.get_current_head", return_value=current_head
+    )
 
     response = client.get("/health")
     assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-    assert response.json() == {"detail": "Database schema not initialized"}, (
-        "Response should indicate that the database schema is not initialized"
+    detail = response.json().get("detail", "")
+    assert "Database schema not up to date." in detail
+    assert (
+        f"Current database schema revision is '{current_database_schema_revision}"
+        in detail
     )
+    assert f"and current head is '{current_head}'" in detail
 
 
 def test_user_save(client: TestClient, mocker: MockFixture) -> None:

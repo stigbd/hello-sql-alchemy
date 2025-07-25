@@ -72,11 +72,17 @@ uv run alembic init --template pyproject alembic
 To create the initial migration, you can use:
 
 ```bash
-uv run alembic revision --autogenerate -m "Initial migration"
+uv run alembic --env-file=.env revision --autogenerate -m "Initial migration"
 ```
 
 To run database migrations, do:
 
 ```bash
 uv run --env-file=.env alembic upgrade head
+```
+
+To check if the migrations are up to date, you can run:
+
+```bash
+uv run --env-file=.env alembic check
 ```

@@ -57,6 +57,21 @@ def docker_cleanup() -> Any:
     return "stop"
 
 
+def test_get_health(http_service: str) -> None:
+    """Health check endpoint should return status OK."""
+    url = f"{http_service}/health"
+    response = httpx.get(url)
+    assert response.status_code == HTTPStatus.OK, (
+        f"Health check failed: {response.text}"
+    )
+    data = response.json()
+    assert data["status"] == "ok", "Health check response should be 'ok'"
+    assert "currentDatabaseSchemaRevision" in data, (
+        "Response should contain 'currentDatabaseSchemaRevision' field"
+    )
+    assert "currentHead" in data, "Response should contain 'currentHead' field"
+
+
 def test_create_user(http_service: str) -> None:
     """Should create a user and return the user ID."""
     url = f"{http_service}/users"
@@ -86,3 +101,31 @@ def test_get_user_list(http_service: str) -> None:
     assert "id" in users[0], "User should have an 'id' field"
     assert "name" in users[0], "User should have a 'name' field"
     assert "fullname" in users[0], "User should have a 'fullname' field"
+
+
+def test_get_user(http_service: str) -> None:
+    """Should retrieve a user by ID."""
+    url = f"{http_service}/users"
+    # First, create a user to retrieve
+    user_data = {"name": "testuser", "fullname": "Test User"}
+    create_response = httpx.post(url, json=user_data)
+    assert create_response.status_code == HTTPStatus.OK, (
+        f"Failed to create user: {create_response.text}"
+    )
+
+    user = create_response.json()
+    user_id = user["id"]
+
+    # Now retrieve the user by ID
+    get_url = f"{url}/{user_id}"
+    response = httpx.get(get_url)
+    assert response.status_code == HTTPStatus.OK, f"Failed to get user: {response.text}"
+
+    retrieved_user = response.json()
+    assert retrieved_user["id"] == user_id, (
+        "Retrieved user ID should match created user ID"
+    )
+    assert retrieved_user["name"] == user_data["name"], "User name should match"
+    assert retrieved_user["fullname"] == user_data["fullname"], (
+        "User fullname should match"
+    )
